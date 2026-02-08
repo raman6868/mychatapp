@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Midnight Chat</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<div class="chat-app">
+
+    <div class="chat-header">
+        <img src="/static/logo.png" class="logo">
+        <h1>Midnight Chat</h1>
+        <p>Talk freely under the stars ✨</p>
+    </div>
+
+    <div id="messages" class="chat-box"></div>
+
+    <div class="inputs">
+        <input id="username" placeholder="Your name">
+        <input id="message" placeholder="Type your message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script>
+    const socket = io();
+
+    function sendMessage() {
+        const username = document.getElementById('username').value.trim();
+        const message = document.getElementById('message').value.trim();
+
+        if (username && message) {
+            socket.send({ username, message });
+            document.getElementById('message').value = "";
+        }
+    }
+
+    socket.on('message', function(data) {
+        const box = document.getElementById('messages');
+        box.innerHTML += `<div class="msg"><b>${data.username}</b><span>${data.message}</span></div>`;
+        box.scrollTop = box.scrollHeight;
+    });
+</script>
+
+</body>
+</html>
