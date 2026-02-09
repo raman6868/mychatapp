@@ -1,53 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Midnight Chat</title>
-
+    <title>Chat App</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
-
 <body>
 
-<div class="overlay"></div>
+<div class="container">
 
-<div class="chat-app">
-
-    <div class="chat-header">
+    <div class="header">
         <img src="/static/logo.png" class="logo">
-        <h1>Midnight Chat</h1>
-        <p>Talk freely under the stars ✨</p>
+        <h2>Chat Application</h2>
     </div>
 
-    <div id="messages" class="chat-box"></div>
+    <div id="chat-box"></div>
 
-    <div class="inputs">
+    <div class="input-area">
         <input id="username" placeholder="Your name">
-        <input id="message" placeholder="Type your message">
+        <input id="message" placeholder="Type message...">
         <button onclick="sendMessage()">Send</button>
     </div>
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
 <script>
-    const socket = io();
+var socket = io();
 
-    function sendMessage() {
-        const username = document.getElementById('username').value.trim();
-        const message = document.getElementById('message').value.trim();
+function sendMessage(){
+    let username = document.getElementById("username").value;
+    let message = document.getElementById("message").value;
 
-        if (username && message) {
-            socket.send({ username, message });
-            document.getElementById('message').value = "";
-        }
+    socket.send({
+        username: username,
+        message: message
+    });
+
+    document.getElementById("message").value = "";
+}
+
+socket.on('message', function(data){
+    let chatBox = document.getElementById("chat-box");
+
+    let div = document.createElement("div");
+
+    let myName = document.getElementById("username").value;
+
+    if(data.username === myName){
+        div.className = "my-message";
+    } else {
+        div.className = "other-message";
     }
 
-    socket.on('message', function(data) {
-        const box = document.getElementById('messages');
-        box.innerHTML += `<div class="msg"><b>${data.username}</b><span>${data.message}</span></div>`;
-        box.scrollTop = box.scrollHeight;
-    });
+    div.innerHTML = "<b>" + data.username + ":</b> " + data.message;
+    chatBox.appendChild(div);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+});
 </script>
 
 </body>
